@@ -10,6 +10,7 @@ def handle_input(game):
             if event.key == K_ESCAPE:
                 game.running = False
             elif event.key == K_RETURN and not game.door_animating:
+                print("openiong")
                 game.door_animating = True
 
     # Capturar el movimiento del mouse

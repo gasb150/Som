@@ -6,6 +6,7 @@ import numpy as np
 from graphics import init_graphics, load_obj
 from input import handle_input
 from utils import cargar_objeto, convertir_coordenadas
+import os
 
 class Game:
     def __init__(self):
@@ -14,7 +15,9 @@ class Game:
         pygame.display.set_caption('3D Game')
         init_graphics()
         self.running = True
-        self.vertices, self.faces = load_obj('/Users/gsanmartin/Documents/Study/Som/assets/room.obj')
+        # Usar una ruta relativa para cargar el archivo room.obj
+        obj_path = os.path.join(os.path.dirname(__file__), '../assets/room.obj')
+        self.vertices, self.faces, self.materials = load_obj(obj_path)
         self.camera_distance = 0  # Distancia inicial de la cámara
         self.camera_x = 0  # Posición inicial de la cámara en X
         self.camera_y = 0  # Posición inicial de la cámara en Y
@@ -116,59 +119,17 @@ class Game:
         glEnable(GL_DEPTH_TEST)
         glDepthFunc(GL_LEQUAL)
 
-        # Renderizar la habitación interior con colores diferentes para cada pared
-        colors = [
-            (1.0, 0.0, 0.0),  # Rojo para la cara trasera interior
-            (0.0, 1.0, 0.0),  # Verde para la cara delantera interior
-            (0.0, 0.0, 1.0),  # Azul para la cara inferior interior
-            (1.0, 1.0, 0.0),  # Amarillo para la cara superior interior
-            (1.0, 0.0, 1.0),  # Magenta para la cara izquierda interior
-            (0.0, 1.0, 1.0)   # Cian para la cara derecha interior
-        ]
-        for i, face in enumerate(self.faces[:6]):  # Las primeras 6 caras son las de la habitación interior
-            glColor3f(*colors[i])
-            glBegin(GL_QUADS)
-            for vertex_index in face:
-                glVertex3fv(self.vertices[vertex_index])
-            glEnd()
-
-        # Renderizar la habitación exterior con colores diferentes para cada pared
-        exterior_colors = [
-            (0.5, 0.0, 0.0),  # Rojo oscuro para la cara trasera exterior
-            (0.0, 0.5, 0.0),  # Verde oscuro para la cara delantera exterior
-            (0.0, 0.0, 0.5),  # Azul oscuro para el suelo exterior
-            (0.5, 0.5, 0.0)   # Amarillo oscuro para el techo exterior
-        ]
-        for i, face in enumerate(self.faces[6:10]):  # Las siguientes caras son las de la habitación exterior
-            glColor3f(*exterior_colors[i])
-            glBegin(GL_QUADS)
-            for vertex_index in face:
-                glVertex3fv(self.vertices[vertex_index])
-            glEnd()
-
-        # Renderizar las conexiones entre las paredes interiores y exteriores
-        connection_colors = [
-            (0.5, 0.0, 0.5),  # Magenta oscuro para la conexión inferior trasera
-            (0.0, 0.5, 0.5),  # Cian oscuro para la conexión derecha trasera
-            (0.5, 0.5, 0.5),  # Gris para la conexión superior trasera
-            (0.5, 0.0, 0.0),  # Rojo oscuro para la conexión izquierda trasera
-            (0.0, 0.5, 0.0),  # Verde oscuro para la conexión inferior delantera
-            (0.0, 0.0, 0.5),  # Azul oscuro para la conexión derecha delantera
-            (0.5, 0.5, 0.0),  # Amarillo oscuro para la conexión superior delantera
-            (0.5, 0.0, 0.5),  # Magenta oscuro para la conexión izquierda delantera
-            (0.5, 0.0, 0.5),  # Magenta oscuro para la conexión inferior delantera
-            (0.0, 0.5, 0.5),  # Cian oscuro para la conexión derecha delantera
-            (0.5, 0.5, 0.5),  # Gris para la conexión superior delantera
-            (0.5, 0.0, 0.0),  # Rojo oscuro para la conexión izquierda delantera
-            (0.5, 0.0, 0.5),  # Magenta oscuro para el marco inferior de la puerta
-            (0.0, 0.5, 0.5),  # Cian oscuro para el marco superior de la puerta
-            (0.5, 0.5, 0.5),  # Gris para el marco izquierdo de la puerta
-            (0.5, 0.0, 0.0),  # Rojo oscuro para el marco derecho de la puerta
-            (0.5, 0.3, 0.0)   # Marrón para la puerta
-        ]
-
-        for i, face in enumerate(self.faces[10:]):  # Las siguientes caras son las conexiones y la puerta
-            glColor3f(*connection_colors[i])
+        # Renderizar la habitación con materiales
+        for face, material in self.faces:
+            if material in self.materials:
+                mat = self.materials[material]
+                glMaterialfv(GL_FRONT, GL_AMBIENT, mat['Ka'])
+                glMaterialfv(GL_FRONT, GL_DIFFUSE, mat['Kd'])
+                glMaterialfv(GL_FRONT, GL_SPECULAR, mat['Ks'])
+                # Asegurarse de que el valor de GL_SHININESS esté en el rango permitido
+                shininess = max(0, min(128, mat['illum'] * 128))
+                glMaterialf(GL_FRONT, GL_SHININESS, shininess)
+                glColor4fv(mat['Kd'] + [mat['d']])
             glBegin(GL_QUADS)
             for vertex_index in face:
                 glVertex3fv(self.vertices[vertex_index])
