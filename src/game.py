@@ -12,7 +12,7 @@ class Game:
         pygame.display.set_caption('3D Game')
         init_graphics()
         self.running = True
-        self.vertices, self.faces = load_obj(r"C:\Users\hp\Documents\Tavo\Som\assets\rooms\wooden-watch-tower2.obj")
+        self.vertices, self.faces = load_obj(r"C:\Users\hp\Documents\Tavo\Som\assets\rooms\room.obj")
         self.camera_distance = 20  # Distancia inicial de la cámara
         self.camera_x = 0  # Posición inicial de la cámara en X
         self.camera_y = 0  # Posición inicial de la cámara en Y
@@ -21,7 +21,7 @@ class Game:
         self.yaw = 0.0  # Rotación alrededor del eje Y
         self.pitch = 0.0  # Rotación alrededor del eje X
         self.mouse_sensitivity = 0.1  # Sensibilidad del mouse
-        self.character_size = 1  # Tamaño del personaje
+        self.character_size = 0.5  # Tamaño del personaje
         pygame.mouse.set_visible(False)
         pygame.event.set_grab(True)
         self.bounding_boxes = self.calculate_bounding_boxes()
@@ -38,7 +38,6 @@ class Game:
             min_z = min(vertex[2] for vertex in vertices)
             max_z = max(vertex[2] for vertex in vertices)
             bounding_boxes.append(((min_x, min_y, min_z), (max_x, max_y, max_z)))
- 
         return bounding_boxes
 
     def check_collision(self, new_x, new_y, new_z):

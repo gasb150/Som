@@ -25,7 +25,7 @@ def init_graphics():
 def load_obj(filename):
     vertices = []
     faces = []
-    with open(filename, 'r') as file:
+    with open(filename, 'r', encoding='utf-8') as file:
         for line in file:
             if line.startswith('#'):
                 continue
