@@ -3,7 +3,9 @@ from pygame.locals import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
 import numpy as np
-from graphics import init_graphics
+from graphics import init_graphics, load_obj
+from input import handle_input
+from utils import cargar_objeto, convertir_coordenadas
 
 class Game:
     def __init__(self):
@@ -12,7 +14,7 @@ class Game:
         pygame.display.set_caption('3D Game')
         init_graphics()
         self.running = True
-        self.vertices, self.faces = self.create_room_with_door_and_window()
+        self.vertices, self.faces = load_obj('/Users/gsanmartin/Documents/Study/Som/assets/room.obj')
         self.camera_distance = 0  # Distancia inicial de la cámara
         self.camera_x = 0  # Posición inicial de la cámara en X
         self.camera_y = 0  # Posición inicial de la cámara en Y
@@ -24,80 +26,11 @@ class Game:
         self.mouse_sensitivity = 0.1  # Sensibilidad del mouse
         self.character_size = 0.5  # Tamaño del personaje
         self.door_open = False  # Estado inicial de la puerta (cerrada)
+        self.door_animating = False  # Estado de la animación de la puerta
+        self.door_animation_progress = 0.0  # Progreso de la animación de la puerta
+        self.door_animation_speed = 0.02  # Velocidad de la animación de la puerta
         pygame.mouse.set_visible(False)
         pygame.event.set_grab(True)
-
-    def create_room_with_door_and_window(self):
-        # Crear una habitación más grande y rectangular con un hueco para la puerta
-        vertices = [
-            (-40, -40, -80),  # 0
-            (40, -40, -80),   # 1
-            (40, 40, -80),    # 2
-            (-40, 40, -80),   # 3
-            (-40, -40, 160),  # 4
-            (40, -40, 160),   # 5
-            (40, 40, 160),    # 6
-            (-40, 40, 160),   # 7
-            (-44, -44, -84),  # 8 (pared trasera exterior)
-            (44, -44, -84),   # 9 (pared trasera exterior)
-            (44, 44, -84),    # 10 (pared trasera exterior)
-            (-44, 44, -84),   # 11 (pared trasera exterior)
-            (-44, -44, 164),  # 12 (pared delantera exterior)
-            (44, -44, 164),   # 13 (pared delantera exterior)
-            (44, 44, 164),    # 14 (pared delantera exterior)
-            (-44, 44, 164),   # 15 (pared delantera exterior)
-            (-40, -44, -80),  # 16 (suelo exterior)
-            (40, -44, -80),   # 17 (suelo exterior)
-            (40, -44, 160),   # 18 (suelo exterior)
-            (-40, -44, 160),  # 19 (suelo exterior)
-            (-40, 44, -80),   # 20 (techo exterior)
-            (40, 44, -80),    # 21 (techo exterior)
-            (40, 44, 160),    # 22 (techo exterior)
-            (-40, 44, 160),   # 23 (techo exterior)
-            (-10, -40, 160),  # 24 (borde izquierdo del hueco de la puerta)
-            (10, -40, 160),   # 25 (borde derecho del hueco de la puerta)
-            (-10, 0, 160),    # 26 (borde superior izquierdo del hueco de la puerta)
-            (10, 0, 160),     # 27 (borde superior derecho del hueco de la puerta)
-            (-10, -44, 164),  # 28 (borde izquierdo del hueco de la puerta exterior)
-            (10, -44, 164),   # 29 (borde derecho del hueco de la puerta exterior)
-            (-10, 0, 164),    # 30 (borde superior izquierdo del hueco de la puerta exterior)
-            (10, 0, 164),     # 31 (borde superior derecho del hueco de la puerta exterior)
-            (-10, -40, 160),  # 32 (puerta inferior izquierda)
-            (10, -40, 160),   # 33 (puerta inferior derecha)
-            (-10, 0, 160),    # 34 (puerta superior izquierda)
-            (10, 0, 160)      # 35 (puerta superior derecha)
-        ]
-        faces = [
-            (0, 1, 2, 3),  # Cara trasera interior
-            (4, 24, 26, 7),  # Parte izquierda de la cara delantera interior
-            (25, 5, 6, 27),  # Parte derecha de la cara delantera interior
-            (26, 27, 6, 7),  # Parte superior de la cara delantera interior
-            (0, 1, 5, 4),  # Cara inferior interior
-            (2, 3, 7, 6),  # Cara superior interior
-            (0, 3, 7, 4),  # Cara izquierda interior
-            (1, 2, 6, 5),  # Cara derecha interior
-            (8, 9, 10, 11),  # Cara trasera exterior
-            (12, 28, 30, 15),  # Parte izquierda de la cara delantera exterior
-            (29, 13, 14, 31),  # Parte derecha de la cara delantera exterior
-            (30, 31, 14, 15),  # Parte superior de la cara delantera exterior
-            (16, 17, 18, 19),  # Suelo exterior
-            (20, 21, 22, 23),  # Techo exterior
-            (0, 1, 9, 8),  # Conexión inferior trasera
-            (1, 2, 10, 9),  # Conexión derecha trasera
-            (2, 3, 11, 10),  # Conexión superior trasera
-            (3, 0, 8, 11),  # Conexión izquierda trasera
-            (4, 5, 13, 12),  # Conexión inferior delantera
-            (5, 6, 14, 13),  # Conexión derecha delantera
-            (6, 7, 15, 14),  # Conexión superior delantera
-            (7, 4, 12, 15),  # Conexión izquierda delantera
-            (24, 25, 29, 28),  # Marco inferior de la puerta
-            (26, 27, 31, 30),  # Marco superior de la puerta
-            (24, 26, 30, 28),  # Marco izquierdo de la puerta
-            (25, 27, 31, 29),  # Marco derecho de la puerta
-            (32, 33, 35, 34)   # Puerta
-        ]
-
-        return vertices, faces
 
     def check_collision(self, new_x, new_y, new_z):
         # Definir las áreas de colisión para las paredes
@@ -117,73 +50,49 @@ class Game:
         if new_y <= -40 + wall_thickness or new_y >= 40 - wall_thickness:
             return True
 
+        # Colisiones con la puerta cuando está cerrada
+        if not self.door_open and not self.door_animating:
+            if (new_z >= 160 - wall_thickness and
+                -10 <= new_x <= 10 and -40 <= new_y <= 0):
+                return True
+
         return False
 
     def run(self):
         while self.running:
-            for event in pygame.event.get():
-                if event.type == QUIT:
-                    self.running = False
-                elif event.type == KEYDOWN:
-                    if event.key == K_ESCAPE:
-                        self.running = False
-                    elif event.key == K_RETURN:
-                        self.toggle_door()
+            handle_input(self)
 
-            # Capturar el movimiento del mouse
-            mouse_dx, mouse_dy = pygame.mouse.get_rel()
-            self.yaw += mouse_dx * self.mouse_sensitivity
-            self.pitch -= mouse_dy * self.mouse_sensitivity
-
-            # Limitar el ángulo de pitch para evitar rotaciones extrañas
-            self.pitch = max(-89.0, min(89.0, self.pitch))
-
-            keys = pygame.key.get_pressed()
-            new_x, new_y, new_z = self.camera_x, self.camera_y, self.camera_z
-            if keys[K_a]:
-                new_x += self.camera_speed * np.sin(np.radians(self.yaw))  # Mover hacia izquierda
-                new_z -= self.camera_speed * np.cos(np.radians(self.yaw))
-            if keys[K_d]:
-                new_x -= self.camera_speed * np.sin(np.radians(self.yaw))  # Mover hacia derecha
-                new_z += self.camera_speed * np.cos(np.radians(self.yaw))
-            if keys[K_s]:
-                new_x -= self.camera_speed * np.cos(np.radians(self.yaw))  # Mover hacia atrás
-                new_z -= self.camera_speed * np.sin(np.radians(self.yaw))
-            if keys[K_w]:
-                new_x += self.camera_speed * np.cos(np.radians(self.yaw))  # Mover hacia adelante
-                new_z += self.camera_speed * np.sin(np.radians(self.yaw))
-            if keys[K_q]:
-                self.yaw -= self.rotation_speed  # Rotar a la izquierda
-            if keys[K_e]:
-                self.yaw += self.rotation_speed  # Rotar a la derecha
-            if keys[K_SPACE]:
-                new_y += self.camera_speed  # Subir
-            if keys[K_LSHIFT]:
-                new_y -= self.camera_speed  # Bajar
-
-            # Comprobar colisiones antes de actualizar la posición de la cámara
-            if not self.check_collision(new_x, new_y, new_z):
-                self.camera_x, self.camera_y, self.camera_z = new_x, new_y, new_z
+            # Actualizar la animación de la puerta
+            if self.door_animating:
+                self.update_door_animation()
 
             self.render_scene()
             pygame.time.wait(10)
 
         pygame.quit()
 
-    def toggle_door(self):
+    def update_door_animation(self):
         if self.door_open:
-            # Cerrar la puerta
-            self.vertices[32] = (-10, -40, 160)
-            self.vertices[33] = (10, -40, 160)
-            self.vertices[34] = (-10, 0, 160)
-            self.vertices[35] = (10, 0, 160)
+            # Animar el cierre de la puerta
+            self.door_animation_progress -= self.door_animation_speed
+            if self.door_animation_progress <= 0.0:
+                self.door_animation_progress = 0.0
+                self.door_open = False
+                self.door_animating = False
         else:
-            # Abrir la puerta (moverla hacia un lado)
-            self.vertices[32] = (-30, -40, 160)
-            self.vertices[33] = (-10, -40, 160)
-            self.vertices[34] = (-30, 0, 160)
-            self.vertices[35] = (-10, 0, 160)
-        self.door_open = not self.door_open
+            # Animar la apertura de la puerta
+            self.door_animation_progress += self.door_animation_speed
+            if self.door_animation_progress >= 1.0:
+                self.door_animation_progress = 1.0
+                self.door_open = True
+                self.door_animating = False
+
+        # Interpolar la posición de la puerta
+        door_offset = self.door_animation_progress * 20.0
+        self.vertices[32] = (-10 - door_offset, -40, 160)
+        self.vertices[33] = (10 - door_offset, -40, 160)
+        self.vertices[34] = (-10 - door_offset, 0, 160)
+        self.vertices[35] = (10 - door_offset, 0, 160)
 
     def render_scene(self):
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
