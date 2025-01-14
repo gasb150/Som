@@ -23,6 +23,7 @@ class Game:
         self.pitch = 0.0  # Rotación alrededor del eje X
         self.mouse_sensitivity = 0.1  # Sensibilidad del mouse
         self.character_size = 0.5  # Tamaño del personaje
+        self.door_open = False  # Estado inicial de la puerta (cerrada)
         pygame.mouse.set_visible(False)
         pygame.event.set_grab(True)
 
@@ -37,30 +38,34 @@ class Game:
             (40, -40, 160),   # 5
             (40, 40, 160),    # 6
             (-40, 40, 160),   # 7
-            (-48, -48, -96),  # 8 (pared trasera exterior)
-            (48, -48, -96),   # 9 (pared trasera exterior)
-            (48, 48, -96),    # 10 (pared trasera exterior)
-            (-48, 48, -96),   # 11 (pared trasera exterior)
-            (-48, -48, 192),  # 12 (pared delantera exterior)
-            (48, -48, 192),   # 13 (pared delantera exterior)
-            (48, 48, 192),    # 14 (pared delantera exterior)
-            (-48, 48, 192),   # 15 (pared delantera exterior)
-            (-40, -48, -80),  # 16 (suelo exterior)
-            (40, -48, -80),   # 17 (suelo exterior)
-            (40, -48, 160),   # 18 (suelo exterior)
-            (-40, -48, 160),  # 19 (suelo exterior)
-            (-40, 48, -80),   # 20 (techo exterior)
-            (40, 48, -80),    # 21 (techo exterior)
-            (40, 48, 160),    # 22 (techo exterior)
-            (-40, 48, 160),   # 23 (techo exterior)
+            (-44, -44, -84),  # 8 (pared trasera exterior)
+            (44, -44, -84),   # 9 (pared trasera exterior)
+            (44, 44, -84),    # 10 (pared trasera exterior)
+            (-44, 44, -84),   # 11 (pared trasera exterior)
+            (-44, -44, 164),  # 12 (pared delantera exterior)
+            (44, -44, 164),   # 13 (pared delantera exterior)
+            (44, 44, 164),    # 14 (pared delantera exterior)
+            (-44, 44, 164),   # 15 (pared delantera exterior)
+            (-40, -44, -80),  # 16 (suelo exterior)
+            (40, -44, -80),   # 17 (suelo exterior)
+            (40, -44, 160),   # 18 (suelo exterior)
+            (-40, -44, 160),  # 19 (suelo exterior)
+            (-40, 44, -80),   # 20 (techo exterior)
+            (40, 44, -80),    # 21 (techo exterior)
+            (40, 44, 160),    # 22 (techo exterior)
+            (-40, 44, 160),   # 23 (techo exterior)
             (-10, -40, 160),  # 24 (borde izquierdo del hueco de la puerta)
             (10, -40, 160),   # 25 (borde derecho del hueco de la puerta)
             (-10, 0, 160),    # 26 (borde superior izquierdo del hueco de la puerta)
             (10, 0, 160),     # 27 (borde superior derecho del hueco de la puerta)
-            (-10, -48, 192),  # 28 (borde izquierdo del hueco de la puerta exterior)
-            (10, -48, 192),   # 29 (borde derecho del hueco de la puerta exterior)
-            (-10, 0, 192),    # 30 (borde superior izquierdo del hueco de la puerta exterior)
-            (10, 0, 192)      # 31 (borde superior derecho del hueco de la puerta exterior)
+            (-10, -44, 164),  # 28 (borde izquierdo del hueco de la puerta exterior)
+            (10, -44, 164),   # 29 (borde derecho del hueco de la puerta exterior)
+            (-10, 0, 164),    # 30 (borde superior izquierdo del hueco de la puerta exterior)
+            (10, 0, 164),     # 31 (borde superior derecho del hueco de la puerta exterior)
+            (-10, -40, 160),  # 32 (puerta inferior izquierda)
+            (10, -40, 160),   # 33 (puerta inferior derecha)
+            (-10, 0, 160),    # 34 (puerta superior izquierda)
+            (10, 0, 160)      # 35 (puerta superior derecha)
         ]
         faces = [
             (0, 1, 2, 3),  # Cara trasera interior
@@ -88,7 +93,8 @@ class Game:
             (24, 25, 29, 28),  # Marco inferior de la puerta
             (26, 27, 31, 30),  # Marco superior de la puerta
             (24, 26, 30, 28),  # Marco izquierdo de la puerta
-            (25, 27, 31, 29)   # Marco derecho de la puerta
+            (25, 27, 31, 29),  # Marco derecho de la puerta
+            (32, 33, 35, 34)   # Puerta
         ]
 
         return vertices, faces
@@ -121,6 +127,8 @@ class Game:
                 elif event.type == KEYDOWN:
                     if event.key == K_ESCAPE:
                         self.running = False
+                    elif event.key == K_RETURN:
+                        self.toggle_door()
 
             # Capturar el movimiento del mouse
             mouse_dx, mouse_dy = pygame.mouse.get_rel()
@@ -161,6 +169,21 @@ class Game:
             pygame.time.wait(10)
 
         pygame.quit()
+
+    def toggle_door(self):
+        if self.door_open:
+            # Cerrar la puerta
+            self.vertices[32] = (-10, -40, 160)
+            self.vertices[33] = (10, -40, 160)
+            self.vertices[34] = (-10, 0, 160)
+            self.vertices[35] = (10, 0, 160)
+        else:
+            # Abrir la puerta (moverla hacia un lado)
+            self.vertices[32] = (-30, -40, 160)
+            self.vertices[33] = (-10, -40, 160)
+            self.vertices[34] = (-30, 0, 160)
+            self.vertices[35] = (-10, 0, 160)
+        self.door_open = not self.door_open
 
     def render_scene(self):
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
@@ -227,9 +250,15 @@ class Game:
             (0.5, 0.0, 0.5),  # Magenta oscuro para la conexión inferior delantera
             (0.0, 0.5, 0.5),  # Cian oscuro para la conexión derecha delantera
             (0.5, 0.5, 0.5),  # Gris para la conexión superior delantera
-            (0.5, 0.0, 0.0)   # Rojo oscuro para la conexión izquierda delantera
+            (0.5, 0.0, 0.0),  # Rojo oscuro para la conexión izquierda delantera
+            (0.5, 0.0, 0.5),  # Magenta oscuro para el marco inferior de la puerta
+            (0.0, 0.5, 0.5),  # Cian oscuro para el marco superior de la puerta
+            (0.5, 0.5, 0.5),  # Gris para el marco izquierdo de la puerta
+            (0.5, 0.0, 0.0),  # Rojo oscuro para el marco derecho de la puerta
+            (0.5, 0.3, 0.0)   # Marrón para la puerta
         ]
-        for i, face in enumerate(self.faces[10:]):  # Las siguientes caras son las conexiones
+
+        for i, face in enumerate(self.faces[10:]):  # Las siguientes caras son las conexiones y la puerta
             glColor3f(*connection_colors[i])
             glBegin(GL_QUADS)
             for vertex_index in face:

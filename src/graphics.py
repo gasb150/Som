@@ -6,6 +6,9 @@ import numpy as np
 
 def init_graphics():
     glEnable(GL_DEPTH_TEST)
+    glDepthFunc(GL_LEQUAL)  # Usar una función de profundidad menos o igual para mejorar la precisión
+    glClearDepth(1.0)  # Establecer la profundidad máxima
+    glDepthRange(0.0, 1.0)  # Establecer el rango de profundidad
     glScalef(2, 2, 2)  # Double the size of the model
 
     glEnable(GL_LIGHT0)
