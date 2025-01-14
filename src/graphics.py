@@ -14,13 +14,12 @@ def init_graphics():
     glLightfv(GL_LIGHT0, GL_SPECULAR, (1, 1, 1, 1))
     glClearColor(1.0, 1.0, 1.0, 1.0)  # Establecer el color de fondo a blanco
     glMatrixMode(GL_PROJECTION)
-    gluPerspective(45, (800/600), 0.1, 50.0)
+    gluPerspective(45, (800/600), 0.1, 300.0)  # Ajustar el rango de visión de la cámara
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
-    gluLookAt(0, 0, 20, 0, 0, 0, 0, 1, 0)  # Alejar la cámara para visualizar correctamente
+    gluLookAt(0, 0, 160, 0, 0, 0, 0, 1, 0)  # Alejar la cámara para visualizar correctamente
     glEnable(GL_CULL_FACE)
     glCullFace(GL_BACK)
-
 
 def load_obj(filename):
     vertices = []

@@ -12,59 +12,69 @@ class Game:
         pygame.display.set_caption('3D Game')
         init_graphics()
         self.running = True
-        self.vertices, self.faces, self.door_vertices, self.door_faces, self.wall_with_door_faces, self.wall_without_door_faces = self.create_room_with_door_and_window()
+        self.vertices, self.faces = self.create_room_with_door_and_window()
         self.camera_distance = 0  # Distancia inicial de la cámara
-        self.camera_x = 10  # Posición inicial de la cámara en X (frente a la puerta)
+        self.camera_x = 0  # Posición inicial de la cámara en X
         self.camera_y = 0  # Posición inicial de la cámara en Y
-        self.camera_z = 40  # Posición inicial de la cámara en Z (fuera de la habitación)
-        self.camera_speed = 0.5  # Velocidad de movimiento de la cámara
+        self.camera_z = 160  # Posición inicial de la cámara en Z (fuera de la habitación)
+        self.camera_speed = 1.0  # Velocidad de movimiento de la cámara
         self.rotation_speed = 2.0  # Velocidad de rotación de la cámara
-        self.yaw = 180.0  # Rotación alrededor del eje Y (mirando hacia la puerta)
+        self.yaw = 0.0  # Rotación alrededor del eje Y
         self.pitch = 0.0  # Rotación alrededor del eje X
         self.mouse_sensitivity = 0.1  # Sensibilidad del mouse
         self.character_size = 0.5  # Tamaño del personaje
-        self.door_open = False  # Estado inicial de la puerta (cerrada)
         pygame.mouse.set_visible(False)
         pygame.event.set_grab(True)
 
     def create_room_with_door_and_window(self):
-        # Crear una habitación más grande y rectangular con una puerta y una ventana
-        # Hacemos las paredes más gruesas ajustando las coordenadas de los vértices
+        # Crear una habitación más grande y rectangular con un hueco para la puerta
         vertices = [
-            (-20, -20, -20),  # 0
-            (20, -20, -20),   # 1
-            (20, 20, -20),    # 2
-            (-20, 20, -20),   # 3
-            (-20, -20, 20),   # 4
-            (20, -20, 20),    # 5
-            (20, 20, 20),     # 6
-            (-20, 20, 20),    # 7
-            (-24, -24, -24),  # 8 (pared trasera exterior)
-            (24, -24, -24),   # 9 (pared trasera exterior)
-            (24, 24, -24),    # 10 (pared trasera exterior)
-            (-24, 24, -24),   # 11 (pared trasera exterior)
-            (-24, -24, 24),   # 12 (pared delantera exterior)
-            (24, -24, 24),    # 13 (pared delantera exterior)
-            (24, 24, 24),     # 14 (pared delantera exterior)
-            (-24, 24, 24),    # 15 (pared delantera exterior)
-            (-20, -24, -20),  # 16 (suelo exterior)
-            (20, -24, -20),   # 17 (suelo exterior)
-            (20, -24, 20),    # 18 (suelo exterior)
-            (-20, -24, 20),   # 19 (suelo exterior)
-            (-20, 24, -20),   # 20 (techo exterior)
-            (20, 24, -20),    # 21 (techo exterior)
-            (20, 24, 20),     # 22 (techo exterior)
-            (-20, 24, 20)     # 23 (techo exterior)
+            (-40, -40, -80),  # 0
+            (40, -40, -80),   # 1
+            (40, 40, -80),    # 2
+            (-40, 40, -80),   # 3
+            (-40, -40, 160),  # 4
+            (40, -40, 160),   # 5
+            (40, 40, 160),    # 6
+            (-40, 40, 160),   # 7
+            (-48, -48, -96),  # 8 (pared trasera exterior)
+            (48, -48, -96),   # 9 (pared trasera exterior)
+            (48, 48, -96),    # 10 (pared trasera exterior)
+            (-48, 48, -96),   # 11 (pared trasera exterior)
+            (-48, -48, 192),  # 12 (pared delantera exterior)
+            (48, -48, 192),   # 13 (pared delantera exterior)
+            (48, 48, 192),    # 14 (pared delantera exterior)
+            (-48, 48, 192),   # 15 (pared delantera exterior)
+            (-40, -48, -80),  # 16 (suelo exterior)
+            (40, -48, -80),   # 17 (suelo exterior)
+            (40, -48, 160),   # 18 (suelo exterior)
+            (-40, -48, 160),  # 19 (suelo exterior)
+            (-40, 48, -80),   # 20 (techo exterior)
+            (40, 48, -80),    # 21 (techo exterior)
+            (40, 48, 160),    # 22 (techo exterior)
+            (-40, 48, 160),   # 23 (techo exterior)
+            (-10, -40, 160),  # 24 (borde izquierdo del hueco de la puerta)
+            (10, -40, 160),   # 25 (borde derecho del hueco de la puerta)
+            (-10, 0, 160),    # 26 (borde superior izquierdo del hueco de la puerta)
+            (10, 0, 160),     # 27 (borde superior derecho del hueco de la puerta)
+            (-10, -48, 192),  # 28 (borde izquierdo del hueco de la puerta exterior)
+            (10, -48, 192),   # 29 (borde derecho del hueco de la puerta exterior)
+            (-10, 0, 192),    # 30 (borde superior izquierdo del hueco de la puerta exterior)
+            (10, 0, 192)      # 31 (borde superior derecho del hueco de la puerta exterior)
         ]
         faces = [
             (0, 1, 2, 3),  # Cara trasera interior
-            (4, 5, 6, 7),  # Cara delantera interior
+            (4, 24, 26, 7),  # Parte izquierda de la cara delantera interior
+            (25, 5, 6, 27),  # Parte derecha de la cara delantera interior
+            (26, 27, 6, 7),  # Parte superior de la cara delantera interior
             (0, 1, 5, 4),  # Cara inferior interior
             (2, 3, 7, 6),  # Cara superior interior
             (0, 3, 7, 4),  # Cara izquierda interior
             (1, 2, 6, 5),  # Cara derecha interior
             (8, 9, 10, 11),  # Cara trasera exterior
-            (12, 13, 14, 15),  # Cara delantera exterior
+            (12, 28, 30, 15),  # Parte izquierda de la cara delantera exterior
+            (29, 13, 14, 31),  # Parte derecha de la cara delantera exterior
+            (30, 31, 14, 15),  # Parte superior de la cara delantera exterior
             (16, 17, 18, 19),  # Suelo exterior
             (20, 21, 22, 23),  # Techo exterior
             (0, 1, 9, 8),  # Conexión inferior trasera
@@ -74,33 +84,34 @@ class Game:
             (4, 5, 13, 12),  # Conexión inferior delantera
             (5, 6, 14, 13),  # Conexión derecha delantera
             (6, 7, 15, 14),  # Conexión superior delantera
-            (7, 4, 12, 15)   # Conexión izquierda delantera
+            (7, 4, 12, 15),  # Conexión izquierda delantera
+            (24, 25, 29, 28),  # Marco inferior de la puerta
+            (26, 27, 31, 30),  # Marco superior de la puerta
+            (24, 26, 30, 28),  # Marco izquierdo de la puerta
+            (25, 27, 31, 29)   # Marco derecho de la puerta
         ]
 
-        # Definir vértices y caras para la puerta
-        door_vertices = [
-            (5, -20, 20),  # 0
-            (15, -20, 20),  # 1
-            (15, 10, 20),  # 2
-            (5, 10, 20)  # 3
-        ]
-        door_faces = [
-            (0, 1, 2, 3)  # Cara de la puerta
-        ]
+        return vertices, faces
 
-        # Definir caras de la pared con y sin la puerta
-        wall_with_door_faces = [
-            (4, 0, 3, 7),  # Parte izquierda de la pared delantera con hueco para la puerta
-            (1, 5, 6, 2),  # Parte derecha de la pared delantera con hueco para la puerta
-            (0, 1, 2, 3)   # Parte superior de la pared delantera con hueco para la puerta
-        ]
-        wall_without_door_faces = [
-            (4, 0, 3, 7),  # Parte izquierda de la pared delantera sin hueco
-            (1, 5, 6, 2),  # Parte derecha de la pared delantera sin hueco
-            (0, 1, 2, 3)   # Parte superior de la pared delantera sin hueco
-        ]
+    def check_collision(self, new_x, new_y, new_z):
+        # Definir las áreas de colisión para las paredes
+        wall_thickness = 1.0
+        door_width = 20.0
+        door_height = 40.0
 
-        return vertices, faces, door_vertices, door_faces, wall_with_door_faces, wall_without_door_faces
+        # Colisiones con las paredes laterales
+        if new_x <= -40 + wall_thickness or new_x >= 40 - wall_thickness:
+            return True
+        # Colisiones con las paredes traseras y delanteras (excepto el hueco de la puerta)
+        if (new_z <= -80 + wall_thickness or
+            (new_z >= 160 - wall_thickness and
+             (new_x < -10 or new_x > 10 or new_y < -40 or new_y > 0))):
+            return True
+        # Colisiones con el suelo y el techo
+        if new_y <= -40 + wall_thickness or new_y >= 40 - wall_thickness:
+            return True
+
+        return False
 
     def run(self):
         while self.running:
@@ -110,8 +121,6 @@ class Game:
                 elif event.type == KEYDOWN:
                     if event.key == K_ESCAPE:
                         self.running = False
-                    elif event.key == K_RETURN:
-                        self.door_open = not self.door_open  # Cambiar el estado de la puerta
 
             # Capturar el movimiento del mouse
             mouse_dx, mouse_dy = pygame.mouse.get_rel()
@@ -144,8 +153,9 @@ class Game:
             if keys[K_LSHIFT]:
                 new_y -= self.camera_speed  # Bajar
 
-            # Actualizar la posición de la cámara
-            self.camera_x, self.camera_y, self.camera_z = new_x, new_y, new_z
+            # Comprobar colisiones antes de actualizar la posición de la cámara
+            if not self.check_collision(new_x, new_y, new_z):
+                self.camera_x, self.camera_y, self.camera_z = new_x, new_y, new_z
 
             self.render_scene()
             pygame.time.wait(10)
@@ -213,7 +223,11 @@ class Game:
             (0.0, 0.5, 0.0),  # Verde oscuro para la conexión inferior delantera
             (0.0, 0.0, 0.5),  # Azul oscuro para la conexión derecha delantera
             (0.5, 0.5, 0.0),  # Amarillo oscuro para la conexión superior delantera
-            (0.5, 0.0, 0.5)   # Magenta oscuro para la conexión izquierda delantera
+            (0.5, 0.0, 0.5),  # Magenta oscuro para la conexión izquierda delantera
+            (0.5, 0.0, 0.5),  # Magenta oscuro para la conexión inferior delantera
+            (0.0, 0.5, 0.5),  # Cian oscuro para la conexión derecha delantera
+            (0.5, 0.5, 0.5),  # Gris para la conexión superior delantera
+            (0.5, 0.0, 0.0)   # Rojo oscuro para la conexión izquierda delantera
         ]
         for i, face in enumerate(self.faces[10:]):  # Las siguientes caras son las conexiones
             glColor3f(*connection_colors[i])
@@ -221,37 +235,6 @@ class Game:
             for vertex_index in face:
                 glVertex3fv(self.vertices[vertex_index])
             glEnd()
-
-        # Renderizar la pared delantera con o sin la puerta
-        if self.door_open:
-            for face in self.wall_with_door_faces:
-                glColor3f(0.0, 1.0, 0.0)  # Verde para la pared delantera con hueco para la puerta
-                glBegin(GL_QUADS)
-                for vertex_index in face:
-                    glVertex3fv(self.vertices[vertex_index])
-                glEnd()
-        else:
-            for face in self.wall_without_door_faces:
-                glColor3f(0.0, 1.0, 0.0)  # Verde para la pared delantera sin hueco
-                glBegin(GL_QUADS)
-                for vertex_index in face:
-                    glVertex3fv(self.vertices[vertex_index])
-                glEnd()
-
-        # Renderizar la puerta
-        glColor3f(0.6, 0.3, 0.0)  # Color marrón para la puerta
-        glBegin(GL_QUADS)
-        for vertex_index in self.door_faces[0]:
-            vertex = self.door_vertices[vertex_index]
-            if self.door_open:
-                # Si la puerta está abierta, rotarla alrededor del eje Y
-                angle = np.radians(90)
-                x, y, z = vertex
-                x_new = x * np.cos(angle) - z * np.sin(angle)
-                z_new = x * np.sin(angle) + z * np.cos(angle)
-                vertex = (x_new, y, z_new)
-            glVertex3fv(vertex)
-        glEnd()
 
         pygame.display.flip()
 
