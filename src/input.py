@@ -9,9 +9,9 @@ def handle_input(game):
         elif event.type == KEYDOWN:
             if event.key == K_ESCAPE:
                 game.running = False
-            elif event.key == K_RETURN and not game.door_animating:
-                print("openiong")
-                game.door_animating = True
+            elif event.key == K_RETURN:
+                if game.is_near_door():
+                    game.door_animating = True
 
     # Capturar el movimiento del mouse
     mouse_dx, mouse_dy = pygame.mouse.get_rel()

@@ -14,10 +14,12 @@ def init_graphics():
 
     glEnable(GL_LIGHTING)
     glEnable(GL_LIGHT0)
-    glLightfv(GL_LIGHT0, GL_POSITION, (0, 0, 10, 1))  # Ajustar la posición de la luz
+    # Ajustar la posición de la luz para que esté en el centro del techo de la habitación
+    glLightfv(GL_LIGHT0, GL_POSITION, (0, 40, 0, 1))  # (x, y, z, w) w=1 para luz puntual
     glLightfv(GL_LIGHT0, GL_DIFFUSE, (1, 1, 1, 1))
     glLightfv(GL_LIGHT0, GL_SPECULAR, (1, 1, 1, 1))
-    glClearColor(1.0, 1.0, 1.0, 1.0)  # Establecer el color de fondo a blanco
+    glLightfv(GL_LIGHT0, GL_AMBIENT, (0.2, 0.2, 0.2, 1))  # Luz ambiental débil
+    glClearColor(0.0, 0.0, 0.0, 1.0)  # Establecer el color de fondo a negro
     glMatrixMode(GL_PROJECTION)
     gluPerspective(45, (800/600), 0.1, 300.0)  # Ajustar el rango de visión de la cámara
     glMatrixMode(GL_MODELVIEW)
