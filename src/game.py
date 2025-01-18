@@ -22,7 +22,7 @@ class Game:
         self.camera_distance = 0  # Distancia inicial de la cámara
         self.camera_x = 0  # Posición inicial de la cámara en X
         self.camera_y = 0  # Posición inicial de la cámara en Y
-        self.camera_z = 0  # Posición inicial de la cámara en Z (fuera de la habitación)
+        self.camera_z = 0  # Posición inicial de la cámara en Z
         self.camera_speed = 1.0  # Velocidad de movimiento de la cámara
         self.rotation_speed = 2.0  # Velocidad de rotación de la cámara
         self.yaw = 0.0  # Rotación alrededor del eje Y

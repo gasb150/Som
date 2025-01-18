@@ -74,3 +74,95 @@ f 26 28 32 30
 
 usemtl DoorMaterial
 f 33 34 36 35
+
+# Vertices for the table
+v -35 -30 50
+v -15 -30 50
+v -15 -25 50
+v -35 -25 50
+v -35 -30 70
+v -15 -30 70
+v -15 -25 70
+v -35 -25 70
+
+# Vertices for the table legs
+v -35 -30 50
+v -34 -30 50
+v -34 -50 50
+v -35 -50 50
+v -35 -30 70
+v -34 -30 70
+v -34 -50 70
+v -35 -50 70
+
+v -15 -30 50
+v -14 -30 50
+v -14 -50 50
+v -15 -50 50
+v -15 -30 70
+v -14 -30 70
+v -14 -50 70
+v -15 -50 70
+
+# Faces for the table
+usemtl TableMaterial
+f 37 38 39 40
+f 41 42 43 44
+f 37 38 42 41
+f 38 39 43 42
+f 39 40 44 43
+f 40 37 41 44
+
+# Faces for the table legs
+usemtl TableMaterial
+f 45 46 47 48
+f 49 50 51 52
+f 45 46 50 49
+f 46 47 51 50
+f 47 48 52 51
+f 48 45 49 52
+
+f 53 54 55 56
+f 57 58 59 60
+f 53 54 58 57
+f 54 55 59 58
+f 55 56 60 59
+f 56 53 57 60
+
+# Vertices for the lamp base (cylinder)
+v -25 -25 60
+v -24 -25 60
+v -24 -20 60
+v -25 -20 60
+v -25 -25 61
+v -24 -25 61
+v -24 -20 61
+v -25 -20 61
+
+# Vertices for the lamp shade (cone)
+v -25 -20 60
+v -24 -20 60
+v -24 -15 60.5
+v -25 -15 60.5
+v -25 -20 61
+v -24 -20 61
+v -24 -15 60.5
+v -25 -15 60.5
+
+# Faces for the lamp base
+usemtl LampMaterial
+f 61 62 63 64
+f 65 66 67 68
+f 61 62 66 65
+f 62 63 67 66
+f 63 64 68 67
+f 64 61 65 68
+
+# Faces for the lamp shade
+usemtl LampMaterial
+f 69 70 71 72
+f 73 74 75 76
+f 69 70 74 73
+f 70 71 75 74
+f 71 72 76 75
+f 72 69 73 76

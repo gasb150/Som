@@ -26,3 +26,17 @@ Kd 0.300 0.200 0.100
 Ks 0.000 0.000 0.000
 d 1.0
 illum 2
+
+newmtl TableMaterial
+Ka 1.000 1.000 1.000
+Kd 0.545 0.271 0.075
+Ks 0.000 0.000 0.000
+d 1.0
+illum 2
+
+newmtl LampMaterial
+Ka 1.000 1.000 1.000
+Kd 0.800 0.800 0.000
+Ks 0.000 0.000 0.000
+d 1.0
+illum 2

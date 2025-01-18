@@ -24,7 +24,7 @@ def init_graphics():
     gluPerspective(45, (800/600), 0.1, 300.0)  # Ajustar el rango de visión de la cámara
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
-    gluLookAt(0, 0, 160, 0, 0, 0, 0, 1, 0)  # Alejar la cámara para visualizar correctamente
+    gluLookAt(0, 0, 0, 0, 0, -1, 0, 1, 0)  # Ajustar la dirección de la cámara
     glEnable(GL_CULL_FACE)
     glCullFace(GL_BACK)
 
