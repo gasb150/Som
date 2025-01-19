@@ -33,6 +33,8 @@ class Game:
         self.door_animating = False  # Estado de la animación de la puerta
         self.door_animation_progress = 0.0  # Progreso de la animación de la puerta
         self.door_animation_speed = 0.02  # Velocidad de la animación de la puerta
+        self.light_on = True  # Estado inicial del foco (encendido)
+        self.switch_position = (30, -10, 160)  # Posición del interruptor en la pared
         pygame.mouse.set_visible(False)
         pygame.event.set_grab(True)
         self.font = pygame.font.SysFont('Arial', 18)  # Fuente para el texto de los controles
@@ -70,6 +72,12 @@ class Game:
         door_z = 160
         distance = np.sqrt((self.camera_x - door_x) ** 2 + (self.camera_y - door_y) ** 2 + (self.camera_z - door_z) ** 2)
         return distance < 50  # Aumentar el umbral de distancia a 50 unidades
+
+    def is_near_switch(self):
+        # Verificar si el jugador está cerca del interruptor
+        switch_x, switch_y, switch_z = self.switch_position
+        distance = np.sqrt((self.camera_x - switch_x) ** 2 + (self.camera_y - switch_y) ** 2 + (self.camera_z - switch_z) ** 2)
+        return distance < 10  # Umbral de distancia para activar el interruptor
 
     def run(self):
         while self.running:
@@ -114,25 +122,25 @@ class Game:
     def render_scene(self):
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         glLoadIdentity()
-
+    
         # Calcular la dirección de la cámara
         direction_x = np.cos(np.radians(self.yaw)) * np.cos(np.radians(self.pitch))
         direction_y = np.sin(np.radians(self.pitch))
         direction_z = np.sin(np.radians(self.yaw)) * np.cos(np.radians(self.pitch))
         camera_direction = np.array([direction_x, direction_y, direction_z])
         camera_target = np.array([self.camera_x, self.camera_y, self.camera_z]) + camera_direction
-
+    
         gluLookAt(self.camera_x, self.camera_y, self.camera_z,
                   camera_target[0], camera_target[1], camera_target[2],
                   0, 1, 0)  # Actualizar la posición de la cámara
-
+    
         # Deshabilitar el culling de caras traseras
         glDisable(GL_CULL_FACE)
-
+    
         # Ajustar la configuración de profundidad
         glEnable(GL_DEPTH_TEST)
         glDepthFunc(GL_LEQUAL)
-
+    
         # Renderizar la habitación con materiales
         for face, material in self.faces:
             if material in self.materials:
@@ -148,19 +156,78 @@ class Game:
                 for vertex_index in face:
                     glVertex3fv(self.vertices[vertex_index])
                 glEnd()
+    
+    
+        # Encender o apagar la luz según el estado de light_on
+        if self.light_on:
+            glEnable(GL_LIGHT0)
+            # Posicionar la luz en el bombillo
+            glLightfv(GL_LIGHT0, GL_POSITION, (0, 30, -100, 1))  # (x, y, z, w) w=1 para luz puntual
+            glLightfv(GL_LIGHT0, GL_DIFFUSE, (1, 1, 1, 1))
+            glLightfv(GL_LIGHT0, GL_SPECULAR, (1, 1, 1, 1))
+            glLightfv(GL_LIGHT0, GL_AMBIENT, (0, 0, 0, 1))  # Luz ambiental más fuerte
+        else:
+            glDisable(GL_LIGHT0)
+    
+        # Renderizar el interruptor en la pared
+        self.render_switch()
+    
+        # Renderizar los controles en la pantalla
+        self.render_controls()
+    
+        # Renderizar la barra de progreso de la puerta
+        self.render_door_progress()
+    
+        # Renderizar el bombillo colgando de un bastón
+        self.render_light_bulb()
 
-        # Renderizar el bombillo en el techo
+    def render_light_bulb(self):
+        # Renderizar el bastón
         glPushMatrix()
-        glTranslatef(0, 40, 40)  # Posicionar el bombillo en el centro del techo
+        glTranslatef(0, 40, 40)  # Posicionar el bastón en el centro del techo
+        if 'LampMaterial' in self.materials:
+            mat = self.materials['LampMaterial']
+            glMaterialfv(GL_FRONT, GL_AMBIENT, mat['Ka'])
+            glMaterialfv(GL_FRONT, GL_DIFFUSE, mat['Kd'])
+            glMaterialfv(GL_FRONT, GL_SPECULAR, mat['Ks'])
+            shininess = max(0, min(128, mat['illum'] * 128))
+            glMaterialf(GL_FRONT, GL_SHININESS, shininess)
+        glBegin(GL_QUADS)
+        glVertex3f(-0.5, 0, 0)
+        glVertex3f(0.5, 0, 0)
+        glVertex3f(0.5, -10, 0)
+        glVertex3f(-0.5, -10, 0)
+        glEnd()
+        glPopMatrix()
+    
+        # Renderizar el bombillo
+        glPushMatrix()
+        glTranslatef(0, 30, 40)  # Posicionar el bombillo al final del bastón
         glColor3f(1, 1, 0)  # Color amarillo para el bombillo
         glutSolidSphere(2, 20, 20)  # Dibujar una esfera como bombillo
         glPopMatrix()
+    
+        glColor3f(1, 1, 1)  # Restaurar el color blanco para los objetos restantes
+    
+    def render_switch(self):
+        # Renderizar el interruptor en la pared
+        glPushMatrix()
+        glTranslatef(*self.switch_position)
+        if 'SwitchMaterial' in self.materials:
+            mat = self.materials['SwitchMaterial']
+            glMaterialfv(GL_FRONT, GL_AMBIENT, mat['Ka'])
+            glMaterialfv(GL_FRONT, GL_DIFFUSE, mat['Kd'])
+            glMaterialfv(GL_FRONT, GL_SPECULAR, mat['Ks'])
+            shininess = max(0, min(128, mat['illum'] * 128))
+            glMaterialf(GL_FRONT, GL_SHININESS, shininess)
+        glBegin(GL_QUADS)
+        glVertex3f(-1, -1, 0)
+        glVertex3f(1, -1, 0)
+        glVertex3f(1, 1, 0)
+        glVertex3f(-1, 1, 0)
+        glEnd()
+        glPopMatrix()
 
-        # Renderizar los controles en la pantalla
-        self.render_controls()
-
-        # Renderizar la barra de progreso de la puerta
-        self.render_door_progress()
 
     def render_controls(self):
         controls_text = [
@@ -248,7 +315,6 @@ class Game:
         glMatrixMode(GL_MODELVIEW)
         glPopMatrix()
         glPopAttrib()
-
 
 if __name__ == "__main__":
     glutInit()  # Inicializar GLUT

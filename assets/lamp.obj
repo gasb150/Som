@@ -1,0 +1,60 @@
+# Vértices ajustados del cono truncado
+v -25.0 -25.0 60.0  # Vértice 1: Centro de la base del cono
+v -24.0 -25.0 60.0  # Vértice 2: Perímetro de la base del cono
+v -24.293 -25.0 60.707  # Vértice 3: Perímetro de la base del cono
+v -25.0 -25.0 61.0  # Vértice 4: Perímetro de la base del cono
+v -25.707 -25.0 60.707  # Vértice 5: Perímetro de la base del cono
+v -26.0 -25.0 60.0  # Vértice 6: Perímetro de la base del cono
+v -25.707 -25.0 59.293  # Vértice 7: Perímetro de la base del cono
+v -25.0 -25.0 59.0  # Vértice 8: Perímetro de la base del cono
+v -24.293 -25.0 59.293  # Vértice 9: Perímetro de la base del cono
+v -24.5 -23.5 60.0  # Vértice 10: Perímetro de la parte truncada del cono
+v -24.646 -23.5 60.354  # Vértice 11: Perímetro de la parte truncada del cono
+v -25.0 -23.5 60.5  # Vértice 12: Perímetro de la parte truncada del cono
+v -25.354 -23.5 60.354  # Vértice 13: Perímetro de la parte truncada del cono
+v -25.5 -23.5 60.0  # Vértice 14: Perímetro de la parte truncada del cono
+v -25.354 -23.5 59.646  # Vértice 15: Perímetro de la parte truncada del cono
+v -25.0 -23.5 59.5  # Vértice 16: Perímetro de la parte truncada del cono
+v -24.646 -23.5 59.646  # Vértice 17: Perímetro de la parte truncada del cono
+
+# Vértices ajustados del cilindro
+v -24.8 -26.0 60.2  # Vértice 18: Perímetro inferior del cilindro
+v -24.8 -26.0 59.8  # Vértice 19: Perímetro inferior del cilindro
+v -25.2 -26.0 59.8  # Vértice 20: Perímetro inferior del cilindro
+v -25.2 -26.0 60.2  # Vértice 21: Perímetro inferior del cilindro
+v -24.8 -25.0 60.2  # Vértice 22: Perímetro superior del cilindro
+v -24.8 -25.0 59.8  # Vértice 23: Perímetro superior del cilindro
+v -25.2 -25.0 59.8  # Vértice 24: Perímetro superior del cilindro
+v -25.2 -25.0 60.2  # Vértice 25: Perímetro superior del cilindro
+
+# Caras para el cono truncado
+
+# Base inferior del cono truncado
+f 2 3 4 5 6 7 8 9
+
+# Base superior del cono truncado
+f 10 11 12 13 14 15 16 17
+
+# Caras laterales del cono truncado
+f 2 10 11 3
+f 3 11 12 4
+f 4 12 13 5
+f 5 13 14 6
+f 6 14 15 7
+f 7 15 16 8
+f 8 16 17 9
+f 9 17 10 2
+
+# Caras para el cilindro
+
+# Base inferior del cilindro
+f 18 19 20 21
+
+# Base superior del cilindro
+f 22 23 24 25
+
+# Caras laterales del cilindro
+f 18 22 23 19
+f 19 23 24 20
+f 20 24 25 21
+f 21 25 22 18

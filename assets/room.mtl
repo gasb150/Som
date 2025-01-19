@@ -1,7 +1,7 @@
 # room.mtl
 newmtl WallMaterial
 Ka 1.000 1.000 1.000
-Kd 0.800 0.800 0.800
+Kd 0.900 0.900 0.900
 Ks 0.000 0.000 0.000
 d 1.0
 illum 2
@@ -35,8 +35,15 @@ d 1.0
 illum 2
 
 newmtl LampMaterial
-Ka 1.000 1.000 1.000
-Kd 0.800 0.800 0.000
-Ks 0.000 0.000 0.000
+Ka 0.5 0.5 0.5
+Kd 0.5 0.5 0.5
+Ks 0.0 0.0 0.0
+d 1.0
+illum 2
+
+newmtl SwitchMaterial
+Ka 0.5 0.5 0.5
+Kd 0.5 0.5 0.5
+Ks 0.0 0.0 0.0
 d 1.0
 illum 2

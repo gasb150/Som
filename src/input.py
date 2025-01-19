@@ -12,6 +12,9 @@ def handle_input(game):
             elif event.key == K_RETURN:
                 if game.is_near_door():
                     game.door_animating = True
+            elif event.key == K_l:  # Usar la tecla 'L' para encender/apagar el foco
+                if game.is_near_switch():
+                    game.light_on = not game.light_on
 
     # Capturar el movimiento del mouse
     mouse_dx, mouse_dy = pygame.mouse.get_rel()
