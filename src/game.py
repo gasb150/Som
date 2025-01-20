@@ -38,6 +38,11 @@ class Game:
         pygame.mouse.set_visible(False)
         pygame.event.set_grab(True)
         self.font = pygame.font.SysFont('Arial', 18)  # Fuente para el texto de los controles
+        self.show_mouse_icon = False  # Estado inicial de la visibilidad del icono del mouse
+        self.mouse_icon1 = pygame.image.load(os.path.join(os.path.dirname(__file__), '../assets/mouse_icon_1.png'))  # Cargar la imagen del mouse
+        self.mouse_icon2 = pygame.image.load(os.path.join(os.path.dirname(__file__), '../assets/mouse_icon_2.png'))  # Cargar la imagen del mouse
+        self.current_mouse_icon = self.mouse_icon1 # Imagen actual del mouse
+        self.mouse_icon_timer = 0  # Temporizador para alternar entre las imágenes del mouse
 
     def check_collision(self, new_x, new_y, new_z):
         # Definir las áreas de colisión para las paredes
@@ -77,7 +82,29 @@ class Game:
         # Verificar si el jugador está cerca del interruptor
         switch_x, switch_y, switch_z = self.switch_position
         distance = np.sqrt((self.camera_x - switch_x) ** 2 + (self.camera_y - switch_y) ** 2 + (self.camera_z - switch_z) ** 2)
-        return distance < 10  # Umbral de distancia para activar el interruptor
+        
+        # Calcular la dirección en la que la cámara está mirando
+        direction_x = np.cos(np.radians(self.yaw)) * np.cos(np.radians(self.pitch))
+        direction_y = np.sin(np.radians(self.pitch))
+        direction_z = np.sin(np.radians(self.yaw)) * np.cos(np.radians(self.pitch))
+        camera_direction = np.array([direction_x, direction_y, direction_z])
+        
+        # Calcular el vector desde la cámara hasta el interruptor
+        to_switch = np.array([switch_x - self.camera_x, switch_y - self.camera_y, switch_z - self.camera_z])
+        to_switch_normalized = to_switch / np.linalg.norm(to_switch)
+        
+        # Calcular el ángulo entre la dirección de la cámara y el vector hacia el interruptor
+        dot_product = np.dot(camera_direction, to_switch_normalized)
+        angle = np.degrees(np.arccos(dot_product))
+        
+        # Verificar si la cámara está mirando hacia el interruptor (umbral de 30 grados)
+        is_facing_switch = angle < 30
+        
+        return distance < 30 and is_facing_switch  # Umbral de distancia para activar el interruptor
+        # Verificar si el jugador está cerca del interruptor
+        switch_x, switch_y, switch_z = self.switch_position
+        distance = np.sqrt((self.camera_x - switch_x) ** 2 + (self.camera_y - switch_y) ** 2 + (self.camera_z - switch_z) ** 2)
+        return distance < 50  # Umbral de distancia para activar el interruptor
 
     def run(self):
         while self.running:
@@ -86,6 +113,15 @@ class Game:
             # Actualizar la animación de la puerta
             if self.door_animating:
                 self.update_door_animation()
+
+             # Actualizar el temporizador del icono del mouse
+            self.mouse_icon_timer += 1
+            if self.mouse_icon_timer >= 30:  # Alternar cada 30 fotogramas (ajusta según sea necesario)
+              self.mouse_icon_timer = 0
+              if self.current_mouse_icon == self.mouse_icon1:
+                self.current_mouse_icon = self.mouse_icon2
+              else:
+                self.current_mouse_icon = self.mouse_icon1
 
             self.render_scene()
             pygame.display.flip()  # Mover la actualización de la pantalla aquí
@@ -181,6 +217,9 @@ class Game:
         # Renderizar el bombillo colgando de un bastón
         self.render_light_bulb()
 
+        # Renderizar el icono del mouse si es necesario
+        self.render_mouse_icon()
+
     def render_light_bulb(self):
         # Renderizar el bastón
         glPushMatrix()
@@ -210,6 +249,12 @@ class Game:
         glColor3f(1, 1, 1)  # Restaurar el color blanco para los objetos restantes
     
     def render_switch(self):
+        # Verificar si el jugador está cerca del interruptor
+        if self.is_near_switch():
+            self.show_mouse_icon = True
+        else:
+            self.show_mouse_icon = False
+
         # Renderizar el interruptor en la pared
         glPushMatrix()
         glTranslatef(*self.switch_position)
@@ -240,23 +285,24 @@ class Game:
             "Esc: Quit"
         ]
         y_offset = 10
+        text_color = (0, 0, 0) if self.light_on else (255, 255, 255)
         for i, line in enumerate(controls_text):
-            self.render_text(line, 10, y_offset + i * 20)
+            self.render_text(line, 10, y_offset + i * 20, color=text_color)
 
-    def render_text(self, text, x, y):
-        text_surface = self.font.render(text, True, (255, 255, 255))
+    def render_text(self, text, x, y, color=(255, 255, 255)):
+        text_surface = self.font.render(text, True, color)
         text_data = pygame.image.tostring(text_surface, "RGBA", True)
         glWindowPos2d(x, y)
-
+    
         # Guardar el estado actual de OpenGL
         glPushAttrib(GL_ALL_ATTRIB_BITS)
-
+    
         # Configurar el modo de mezcla para renderizar el texto correctamente
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-
+    
         glDrawPixels(text_surface.get_width(), text_surface.get_height(), GL_RGBA, GL_UNSIGNED_BYTE, text_data)
-
+    
         # Restaurar el estado anterior de OpenGL
         glPopAttrib()
 
@@ -315,6 +361,24 @@ class Game:
         glMatrixMode(GL_MODELVIEW)
         glPopMatrix()
         glPopAttrib()
+    
+    def render_mouse_icon(self):
+        if self.show_mouse_icon:
+            icon_width, icon_height = self.current_mouse_icon.get_size()
+            icon_data = pygame.image.tostring(self.current_mouse_icon, "RGBA", True)
+            glWindowPos2d(self.screen.get_width() // 2 - icon_width // 2, self.screen.get_height() // 2 - icon_height // 2)
+    
+            # Guardar el estado actual de OpenGL
+            glPushAttrib(GL_ALL_ATTRIB_BITS)
+    
+            # Configurar el modo de mezcla para renderizar la imagen correctamente
+            glEnable(GL_BLEND)
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+    
+            glDrawPixels(icon_width, icon_height, GL_RGBA, GL_UNSIGNED_BYTE, icon_data)
+    
+            # Restaurar el estado anterior de OpenGL
+            glPopAttrib()
 
 if __name__ == "__main__":
     glutInit()  # Inicializar GLUT
